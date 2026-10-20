@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Data Table</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #f3f5f9;
+      color: #1d2433;
+      margin: 0;
+      padding: 32px 16px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(20, 30, 60, 0.08);
+    }
+
+    h1 { margin: 0 0 20px; font-size: 1.5rem; }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    #search {
+      flex: 1 1 220px;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 1.5px solid #c9cfdb;
+      border-radius: 8px;
+    }
+
+    #search:focus { outline: 2px solid #3b6ef5; outline-offset: 1px; border-color: #3b6ef5; }
+
+    button {
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      background: #3b6ef5;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover { background: #2a58d6; }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e3e7ef; }
+
+    th { background: #f3f5f9; font-size: 0.9rem; }
+
+    tbody tr:hover { background: #f8faff; }
+
+    #noResults { display: none; text-align: center; padding: 20px; color: #6b7385; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Users</h1>
+
+    <div class="controls">
+      <input type="text" id="search" placeholder="Search by name, age or city">
+      <button id="sortName">Sort by name</button>
+      <button id="sortAge">Sort by age</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Age</th>
+          <th>City</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+    <div id="noResults">No matching results.</div>
+  </div>
+
+  <script>
+    // 1) The data: an array of objects
+    const users = [
+      { name: "Adham",   age: 20, city: "Cairo" },
+      { name: "Sara",    age: 22, city: "Alexandria" },
+      { name: "Omar",    age: 35, city: "Giza" },
+      { name: "Mona",    age: 31, city: "Cairo" },
+      { name: "Youssef", age: 19, city: "Mansoura" },
+      { name: "Nour",    age: 26, city: "Tanta" },
+      { name: "Khaled",  age: 42, city: "Aswan" },
+      { name: "Laila",   age: 24, city: "Luxor" }
+    ];
+
+    const tableBody = document.getElementById("tableBody");
+    const searchInput = document.getElementById("search");
+    const noResults = document.getElementById("noResults");
+
+    // Remember the current sort direction for each button (true = ascending)
+    let nameAscending = true;
+    let ageAscending = true;
+
+    // 2) Build the table rows with JavaScript
+    function renderTable(list) {
+      tableBody.innerHTML = ""; // clear old rows
+
+      list.forEach(function (person) {
+        const row = document.createElement("tr");
+        row.innerHTML =
+          "<td>" + person.name + "</td>" +
+          "<td>" + person.age + "</td>" +
+          "<td>" + person.city + "</td>";
+        tableBody.appendChild(row);
+      });
+
+      // Show a message when nothing matches
+      noResults.style.display = list.length === 0 ? "block" : "none";
+    }
+
+    // 3) Search: filter the array by whatever the user typed
+    function getFilteredUsers() {
+      const text = searchInput.value.trim().toLowerCase();
+
+      return users.filter(function (person) {
+        return (
+          person.name.toLowerCase().includes(text) ||
+          String(person.age).includes(text) ||
+          person.city.toLowerCase().includes(text)
+        );
+      });
+    }
+
+    // "input" fires on every keystroke, so no button is needed
+    searchInput.addEventListener("input", function () {
+      renderTable(getFilteredUsers());
+    });
+
+    // 4) Sort buttons (sort the main array, then re-apply the search filter)
+    document.getElementById("sortName").addEventListener("click", function () {
+      users.sort(function (a, b) {
+        return nameAscending ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+      });
+      nameAscending = !nameAscending; // next click reverses the order
+      renderTable(getFilteredUsers());
+    });
+    
+    document.getElementById("sortAge").addEventListener("click", function () {
+      users.sort(function (a, b) {
+        return ageAscending ? a.age - b.age : b.age - a.age;
+      });
+      ageAscending = !ageAscending;
+      renderTable(getFilteredUsers());
+    });
+
+    // Show the table when the page first loads
+    renderTable(users);
+  </script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Registration Form</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: #f3f5f9;
+      color: #1d2433;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    form {
+      background: #fff;
+      width: 100%;
+      max-width: 420px;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(20, 30, 60, 0.08);
+    }
+
+    h1 { margin: 0 0 24px; font-size: 1.5rem; }
+
+    .field { margin-bottom: 18px; }
+
+    label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; }
+
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 1.5px solid #c9cfdb;
+      border-radius: 8px;
+    }
+
+    input:focus { outline: 2px solid #3b6ef5; outline-offset: 1px; border-color: #3b6ef5; }
+
+    /* Red border when a field is invalid */
+    input.invalid { border-color: #d92d3a; }
+
+    .error {
+      color: #d92d3a;
+      font-size: 0.85rem;
+      margin-top: 5px;
+      min-height: 1em; /* keeps the layout from jumping */
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      background: #3b6ef5;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover { background: #2a58d6; }
+
+    #success {
+      display: none;
+      margin-top: 16px;
+      padding: 12px;
+      background: #e3f6e8;
+      color: #17692f;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- novalidate turns off the browser's own checks so only our JavaScript validates -->
+  <form id="registerForm" novalidate>
+    <h1>Create account</h1>
+
+    <div class="field">
+      <label for="name">Name</label>
+      <input type="text" id="name" autocomplete="name">
+      <div class="error" id="nameError"></div>
+    </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input type="email" id="email" autocomplete="email">
+      <div class="error" id="emailError"></div>
+    </div>
+
+    <div class="field">
+      <label for="password">Password</label>
+      <input type="password" id="password" autocomplete="new-password">
+      <div class="error" id="passwordError"></div>
+    </div>
+
+    <div class="field">
+      <label for="confirmPassword">Confirm password</label>
+      <input type="password" id="confirmPassword" autocomplete="new-password">
+      <div class="error" id="confirmPasswordError"></div>
+    </div>
+
+    <div class="field">
+      <label for="age">Age</label>
+      <input type="number" id="age">
+      <div class="error" id="ageError"></div>
+    </div>
+
+    <button type="submit">Register</button>
+    <div id="success">Registration successful!</div>
+  </form>
+
+  <script>
+    const form = document.getElementById("registerForm");
+
+    // Show an error under a field
+    function showError(fieldId, message) {
+      document.getElementById(fieldId).classList.add("invalid");
+      document.getElementById(fieldId + "Error").textContent = message;
+    }
+
+    // Remove the error from a field
+    function clearError(fieldId) {
+      document.getElementById(fieldId).classList.remove("invalid");
+      document.getElementById(fieldId + "Error").textContent = "";
+    }
+
+    // Each function returns true if the field is valid, false otherwise
+    function validateName() {
+      const value = document.getElementById("name").value.trim();
+      if (value === "") {
+        showError("name", "Name is required.");
+        return false;
+      }
+      if (value.length < 2) {
+        showError("name", "Name must be at least 2 characters.");
+        return false;
+      }
+      clearError("name");
+      return true;
+    }
+
+    function validateEmail() {
+      const value = document.getElementById("email").value.trim();
+      // Simple pattern: something@something.something
+      const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (value === "") {
+        showError("email", "Email is required.");
+        return false;
+      }
+      if (!pattern.test(value)) {
+        showError("email", "Enter a valid email like name@example.com.");
+        return false;
+      }
+      clearError("email");
+      return true;
+    }
+
+    function validatePassword() {
+      const value = document.getElementById("password").value;
+      if (value === "") {
+        showError("password", "Password is required.");
+        return false;
+      }
+      if (value.length < 8) {
+        showError("password", "Password must be at least 8 characters.");
+        return false;
+      }
+      clearError("password");
+      return true;
+    }
+
+    function validateConfirmPassword() {
+      const password = document.getElementById("password").value;
+      const confirm = document.getElementById("confirmPassword").value;
+      if (confirm === "") {
+        showError("confirmPassword", "Please confirm your password.");
+        return false;
+      }
+      if (confirm !== password) {
+        showError("confirmPassword", "Passwords do not match.");
+        return false;
+      }
+      clearError("confirmPassword");
+      return true;
+    }
+
+    function validateAge() {
+      const raw = document.getElementById("age").value;
+      const value = Number(raw);
+      if (raw === "") {
+        showError("age", "Age is required.");
+        return false;
+      }
+      if (!Number.isInteger(value) || value < 18 || value > 120) {
+        showError("age", "Age must be a whole number between 18 and 120.");
+        return false;
+      }
+      clearError("age");
+      return true;
+    }
+
+    // Re-check a field while the user is typing
+    document.getElementById("name").addEventListener("input", validateName);
+    document.getElementById("email").addEventListener("input", validateEmail);
+    document.getElementById("password").addEventListener("input", () => {
+      validatePassword();
+      // Keep the confirm field in sync if it already has text
+      if (document.getElementById("confirmPassword").value !== "") {
+        validateConfirmPassword();
+      }
+    });
+    document.getElementById("confirmPassword").addEventListener("input", validateConfirmPassword);
+    document.getElementById("age").addEventListener("input", validateAge);
+
+    form.addEventListener("submit", function (event) {
+      // Always stop the real submit first, then decide
+      event.preventDefault();
+
+      // Run ALL checks (don't stop at the first error) so every message shows
+      const results = [
+        validateName(),
+        validateEmail(),
+        validatePassword(),
+        validateConfirmPassword(),
+        validateAge()
+      ];
+
+      const allValid = results.every(Boolean);
+      const success = document.getElementById("success");
+
+      if (allValid) {
+        success.style.display = "block";
+        // In a real project you would send the data to a server here.
+      } else {
+        success.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
